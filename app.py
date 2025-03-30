@@ -6,12 +6,15 @@ st.title("Projeto de Contabilidade de Custos e Gerencial")
 
 st.markdown("---")
 
-try:
-    # Lê a planilha diretamente do diretório raiz (sem usar __file__)
-    caminho_arquivo = "dados.xlsx"
+# Função cacheada para carregar os dados - NOVA FUNÇÃO
+@st.cache_data
+def load_data():
+    url = "https://raw.githubusercontent.com/igoracorrear/projeto-contabilidade/main/dados.xlsx"
+    return pd.read_excel(url, sheet_name=None)
 
-    # Lê a planilha com caminho absoluto
-    planilhas = pd.read_excel(caminho_arquivo, sheet_name=None)
+try:
+    # Usa a função cacheada em vez do caminho local - ALTERADO
+    planilhas = load_data()
     movimentacao = planilhas["Movimentacao Bancaria"]
     plano_contas = planilhas["Plano de Contas"]
 
@@ -78,7 +81,6 @@ try:
     despesas_validas = despesas[despesas["Descricao"].notnull()]
     despesas_agrupadas = despesas_validas.groupby(["Mês", "Descricao"])["Saida"].sum().unstack().fillna(0)
 
-
     # Salva uma versão formatada com valores em R$
     despesas_formatadas = despesas_agrupadas.applymap(lambda x: f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
 
@@ -99,7 +101,6 @@ try:
     receita_por_cliente = receitas_clientes.groupby("Historico")["Entrada"].sum()
 
     # Soma total das receitas e despesas
-
     total_receita = receita_por_cliente.sum()
     total_despesas = despesas["Saida"].sum()
 
@@ -131,4 +132,5 @@ try:
     st.bar_chart(top_20_clientes[["Receita Total", "Custo Estimado"]])
 
 except Exception as e:
-    st.error("⚠️ Ocorreu um erro ao carregar os dados. Verifique se o arquivo 'dados.xlsx' está presente e no formato correto.")
+    st.error(f"⚠️ Ocorreu um erro ao carregar os dados: {str(e)}")
+    st.error("Verifique se o arquivo 'dados.xlsx' está presente e no formato correto.")
