@@ -7,9 +7,8 @@ st.title("Projeto de Contabilidade de Custos e Gerencial")
 st.markdown("---")
 
 try:
-    # Caminho absoluto baseado na pasta do app.py
-    caminho_base = os.path.dirname(__file__)
-    caminho_arquivo = os.path.join(caminho_base, "dados.xlsx")
+    # Lê a planilha diretamente do diretório raiz (sem usar __file__)
+    caminho_arquivo = "dados.xlsx"
 
     # Lê a planilha com caminho absoluto
     planilhas = pd.read_excel(caminho_arquivo, sheet_name=None)
